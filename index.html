@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Periodic Table Adventure</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(135deg,#10152e,#202b50);
+  color:white;
+}
+header{text-align:center;padding:25px 12px 15px}
+header h1{margin:0;color:#8eeaff;font-size:30px}
+header p{color:#c7d4f5;margin:9px 0}
+.container{max-width:1200px;margin:auto;padding:12px}
+.tools{
+ display:flex;flex-wrap:wrap;gap:9px;justify-content:center;
+ margin:15px 0 20px
+}
+input,select,button{
+ padding:11px 14px;border:0;border-radius:10px;font-size:14px
+}
+input,select{background:#fff;color:#222}
+button{
+ background:#40c6db;color:#102033;font-weight:bold;cursor:pointer;
+ transition:.2s
+}
+button:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.section-title{color:#8eeaff;margin:20px 0 12px}
+.table-wrap{
+ overflow-x:auto;background:#111a35;padding:12px;border-radius:14px;
+}
+.periodic{
+ display:grid;
+ grid-template-columns:35px repeat(18,minmax(48px,1fr));
+ gap:4px;min-width:1000px
+}
+.group-label,.period-label{
+ display:flex;align-items:center;justify-content:center;
+ color:#9db5e9;font-size:11px;font-weight:bold;
+ min-height:28px;text-align:center
+}
+.element{
+ min-height:75px;border-radius:7px;padding:4px;
+ display:flex;flex-direction:column;align-items:center;
+ justify-content:center;cursor:pointer;color:#111;
+ transition:.15s;position:relative
+}
+.element:hover{transform:scale(1.08);z-index:2;outline:2px solid white}
+.element .number{font-size:10px;align-self:flex-start}
+.element .symbol{font-size:20px;font-weight:bold}
+.element .name{font-size:9px;text-align:center}
+.blank{min-height:75px}
+.alkali{background:#ff9d9d}
+.alkaline{background:#ffc879}
+.transition{background:#ffe58c}
+.post{background:#a9e5a2}
+.metalloid{background:#82dfcf}
+.nonmetal{background:#8bd5ff}
+.halogen{background:#a6b4ff}
+.noble{background:#d3a6ff}
+.lanthanide{background:#ffb6df}
+.actinide{background:#d9b6ff}
+.unknown{background:#c5cbd6}
+.legend{display:flex;flex-wrap:wrap;gap:9px;margin:15px 0}
+.legend span{font-size:11px;display:flex;align-items:center;gap:5px}
+.dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+.panel{
+ background:#1b2748;border:1px solid #34466e;border-radius:14px;
+ padding:17px;margin-top:18px
+}
+.detail-content{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.big-symbol{
+ font-size:50px;font-weight:bold;background:#8eeaff;color:#14213d;
+ width:90px;height:90px;border-radius:18px;display:grid;place-items:center
+}
+.detail-info h2{margin:0 0 8px;color:#8eeaff}
+.detail-info p{margin:5px 0;color:#dce5ff}
+.action-row{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+#quizBox{display:none}
+#quizQuestion{font-size:19px;margin:10px 0}
+.answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.answers button{background:#34466e;color:white}
+.answers button.correct{background:#2eaa77}
+.answers button.wrong{background:#d45d69}
+#quizFeedback{min-height:25px;margin-top:12px}
+footer{text-align:center;color:#9eadd0;padding:25px;font-size:12px}
+@media(max-width:600px){
+ header h1{font-size:24px}
+ .answers{grid-template-columns:1fr}
+ .element{min-height:65px}
+}
+</style>
+</head>
+<body>
+<header>
+ <h1>⚛ PERIODIC TABLE</h1>
+ <p>Explore the 118 Elements of the Universe</p>
+</header>
+
+<div class="container">
+ <div class="tools">
+  <input id="search" placeholder="Cari nama / simbol unsur..." oninput="renderTable()">
+  <select id="filter" onchange="renderTable()">
+   <option value="all">Semua golongan</option>
+   <option value="alkali">Logam alkali</option>
+   <option value="alkaline">Alkali tanah</option>
+   <option value="transition">Logam transisi</option>
+   <option value="post">Logam pascatransisi</option>
+   <option value="metalloid">Metaloid</option>
+   <option value="nonmetal">Nonlogam</option>
+   <option value="halogen">Halogen</option>
+   <option value="noble">Gas mulia</option>
+   <option value="lanthanide">Lantanida</option>
+   <option value="actinide">Aktinida</option>
+  </select>
+  <button onclick="randomElement()">🎲 Unsur Acak</button>
+  <button onclick="startQuiz()">🧠 Mulai Kuis</button>
+ </div>
+
+ <h3 class="section-title">Tabel Periodik 118 Unsur</h3>
+ <div class="table-wrap">
+  <div id="periodic" class="periodic"></div>
+ </div>
+
+ <div class="legend" id="legend"></div>
+
+ <div class="panel" id="detail">
+  <h3 class="section-title">🔎 Detail Unsur</h3>
+  <p>Pilih salah satu unsur pada tabel untuk melihat informasinya.</p>
+ </div>
+
+ <div class="panel">
+  <h3 class="section-title">🎯 Tantangan Kimia</h3>
+  <p>Uji pengetahuanmu tentang unsur-unsur kimia melalui kuis singkat!</p>
+  <button onclick="startQuiz()">Mulai Kuis Sekarang</button>
+  <div id="quizBox">
+   <p id="quizProgress"></p>
+   <div id="quizQuestion"></div>
+   <div class="answers" id="answers"></div>
+   <div id="quizFeedback"></div>
+   <button id="nextBtn" onclick="nextQuestion()" style="display:none">Soal Berikutnya →</button>
+  </div>
+ </div>
+</div>
+<footer>Periodic Table Adventure • Learn Chemistry in a Fun Way</footer>
+
+<script src = "script.js"></script>
+</body>
+</html>
